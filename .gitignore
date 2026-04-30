@@ -1,0 +1,10 @@
+.aws-sam/
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+agentcore/cdk/
+agentcore/.cli/
+*.egg-info/
+.DS_Store
+samconfig.toml

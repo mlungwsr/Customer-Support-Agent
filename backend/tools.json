@@ -1,0 +1,16 @@
+[
+  {
+    "name": "lookup_order",
+    "description": "Look up a customer order by order ID. Returns order details including status, product, price, tracking number, and delivery dates.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "description": "The order ID to look up, e.g. ORD-1001"
+        }
+      },
+      "required": ["order_id"]
+    }
+  }
+]

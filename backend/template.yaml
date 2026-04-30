@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Customer Support Agent - DynamoDB + Lambda backend
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 10
+    MemorySize: 128
+
+Resources:
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: customer-orders
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: order_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: order_id
+          KeyType: HASH
+
+  OrderLookupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: customer-order-lookup
+      Handler: index.handler
+      CodeUri: lambda/
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref OrdersTable
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrdersTable
+
+Outputs:
+  OrdersTableName:
+    Value: !Ref OrdersTable
+  OrderLookupFunctionArn:
+    Value: !GetAtt OrderLookupFunction.Arn
