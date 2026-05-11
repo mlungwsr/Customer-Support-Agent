@@ -89,24 +89,40 @@ aws lambda invoke --function-name customer-order-lookup \
 # Install AgentCore CLI (preview channel for harness support)
 npm install -g @aws/agentcore@preview
 
-# Run the setup script
+# Create the harness via the interactive wizard
 cd agent-harness
-bash setup.sh
+agentcore create
+# Select: Project name → CustomerSupport, Project type → Harness,
+#         Harness name → SupportAgent, Model provider → Bedrock
+
+# Add Gateway with the order lookup Lambda
+cd CustomerSupport
+agentcore add gateway --name OrderLookupGateway --authorizer-type NONE
+agentcore add gateway-target --name OrderLookupTarget \
+  --type lambda-function-arn \
+  --lambda-arn arn:aws:lambda:us-west-2:463348350759:function:customer-order-lookup \
+  --tool-schema-file ../../backend/tools.json \
+  --gateway OrderLookupGateway
+
+# Deploy
+agentcore deploy
 ```
 
 Test it:
 ```bash
-agentcore invoke --harness CustomerSupportAgent \
+agentcore invoke --harness SupportAgent \
   --model-id us.amazon.nova-pro-v1:0 \
+  --system-prompt "You are a helpful customer support agent for an electronics store. Use the lookup_order tool to find order details." \
   --session-id "$(uuidgen)" \
   "I need help with order ORD-1002"
 ```
 
-Or use the standalone Python script:
+Or use the standalone invoke script:
 ```bash
-pip install boto3
 python invoke_harness.py "What's the status of order ORD-1003?"
 ```
+
+> See [`agent-harness/README.md`](agent-harness/README.md) for full instructions.
 
 ### 2b. Deploy the Code-Based Agent (Full Control)
 
