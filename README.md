@@ -91,7 +91,7 @@ npm install -g @aws/agentcore@preview
 cd agent-harness
 
 # Option A: One-liner (non-interactive)
-agentcore create --name SupportAgent --model-provider bedrock
+agentcore create --name SupportAgent --model-provider bedrock --model-id us.amazon.nova-pro-v1:0
 
 # Option B: Interactive wizard (better for demo visuals)
 agentcore create

@@ -8,7 +8,7 @@ There are two ways to create it:
 ```bash
 npm install -g @aws/agentcore@preview
 
-agentcore create --name SupportAgent --model-provider bedrock
+agentcore create --name SupportAgent --model-provider bedrock --model-id us.amazon.nova-pro-v1:0
 cd SupportAgent
 ```
 
