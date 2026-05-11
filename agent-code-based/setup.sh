@@ -23,6 +23,17 @@ agentcore create \
 
 cd CSAgent
 
+# Set deployment target (not auto-populated in non-interactive mode)
+cat > agentcore/aws-targets.json << 'EOF'
+[
+  {
+    "name": "default",
+    "account": "463348350759",
+    "region": "us-west-2"
+  }
+]
+EOF
+
 # Step 2: Add a Gateway
 echo ""
 echo "==> Step 2: Adding Gateway..."
