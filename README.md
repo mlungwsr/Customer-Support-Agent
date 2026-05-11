@@ -134,7 +134,7 @@ Customer-Support-Agent/
 │   └── tools.json             # Tool schema for AgentCore Gateway
 ├── agent-harness/
 │   ├── README.md              # Instructions for interactive harness creation
-│   ├── invoke_harness.py      # Standalone invoke script (boto3)
+│   ├── invoke_harness.py      # Standalone invoke script
 │   └── requirements.txt
 ├── agent-code-based/
 │   ├── setup.sh               # Creates Strands agent + gateway + deploys

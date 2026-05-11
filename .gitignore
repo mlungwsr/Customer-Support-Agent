@@ -8,3 +8,5 @@ agentcore/.cli/
 *.egg-info/
 .DS_Store
 samconfig.toml
+agent-harness/CustomerSupport/
+agent-code-based/CSAgent/
