@@ -34,6 +34,12 @@ agentcore add gateway-target --name OrderLookupTarget \
   --tool-schema-file ../../backend/tools.json \
   --gateway OrderLookupGateway
 
+# Connect the Gateway as a tool to the harness
+agentcore add tool --harness SupportAgent \
+  --type agentcore_gateway \
+  --name OrderLookupGateway \
+  --gateway OrderLookupGateway
+
 # Deploy
 agentcore deploy
 ```
