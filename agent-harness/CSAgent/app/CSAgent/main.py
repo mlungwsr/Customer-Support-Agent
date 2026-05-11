@@ -25,9 +25,7 @@ def get_or_create_agent():
     if _agent is None:
         _agent = Agent(
             model=load_model(),
-            system_prompt="""
-                You are a helpful customer support agent for an electronics store. Use the lookup_order tool to find order details.
-            """,
+            system_prompt="""You are a helpful customer support agent for an electronics store. Use the lookup_order tool to find order details.""",
             tools=tools
         )
     return _agent
@@ -43,7 +41,6 @@ async def invoke(payload, context):
     stream = agent.stream_async(payload.get("prompt"))
 
     async for event in stream:
-        # Handle Text parts of the response
         if "data" in event and isinstance(event["data"], str):
             yield event["data"]
 
