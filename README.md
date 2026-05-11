@@ -184,19 +184,25 @@ Customer-Support-Agent/
 
 ### Act 2 — The Fast Lane: Managed Harness (12 min)
 ```bash
-# Show: no orchestration code, just config
-agentcore create --name CustomerSupportAgent --model-provider bedrock
+# Create harness via interactive wizard (select Harness as project type)
+agentcore create
+# → Project name: CustomerSupport
+# → Project type: Harness
+# → Harness name: SupportAgent
+# → Model provider: Bedrock
+
+cd CustomerSupport
 
 # Add Gateway with Lambda tool
 agentcore add gateway --name OrderLookupGateway --authorizer-type NONE
 agentcore add gateway-target --name OrderLookupTarget \
   --type lambda-function-arn \
   --lambda-arn $LAMBDA_ARN \
-  --tool-schema-file tools.json \
+  --tool-schema-file ../../backend/tools.json \
   --gateway OrderLookupGateway
 
 # Connect Gateway tool to the harness
-agentcore add tool --harness CustomerSupportAgent \
+agentcore add tool --harness SupportAgent \
   --type agentcore_gateway \
   --name OrderLookupGateway \
   --gateway OrderLookupGateway
@@ -204,11 +210,12 @@ agentcore add tool --harness CustomerSupportAgent \
 # Deploy
 agentcore deploy
 
-# Set the system prompt and model permanently on the harness
-agentcore invoke --harness CustomerSupportAgent \
+# Invoke — model and system prompt passed at invoke time, no code!
+SESSION="demo-session-2026-06-10-festival01"
+agentcore invoke --harness SupportAgent \
   --model-id us.amazon.nova-pro-v1:0 \
   --system-prompt "You are a helpful customer support agent for an electronics store. Use the lookup_order tool to find order details." \
-  --session-id "$(uuidgen)" \
+  --session-id "$SESSION" \
   "Look up order ORD-1001"
 ```
 
