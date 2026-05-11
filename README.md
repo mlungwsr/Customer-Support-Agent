@@ -173,13 +173,25 @@ agentcore add gateway-target --name OrderLookupTarget \
   --tool-schema-file tools.json \
   --gateway OrderLookupGateway
 
-# Deploy and invoke
+# Connect Gateway tool to the harness
+agentcore add tool --harness CustomerSupportAgent \
+  --type agentcore_gateway \
+  --name OrderLookupGateway \
+  --gateway OrderLookupGateway
+
+# Deploy
 agentcore deploy
+
+# Set the system prompt and model permanently on the harness
 agentcore invoke --harness CustomerSupportAgent \
   --model-id us.amazon.nova-pro-v1:0 \
+  --system-prompt "You are a helpful customer support agent for an electronics store. Use the lookup_order tool to find order details." \
   --session-id "$(uuidgen)" \
   "Look up order ORD-1001"
 ```
+
+> **💡 Tip:** The system prompt references `lookup_order` — this matches the tool name
+> defined in `backend/tools.json` that the Gateway exposes to the agent.
 
 ### Act 3 — Add Superpowers (10 min)
 - Add memory: `agentcore add memory`
