@@ -12,7 +12,11 @@ def handler(event, context):
     if not order_id:
         return {"statusCode": 400, "body": json.dumps({"error": "order_id is required"})}
 
-    resp = table.get_item(Key={"order_id": str(order_id)})
+    order_id = str(order_id)
+    if not order_id.startswith("ORD-"):
+        order_id = f"ORD-{order_id}"
+
+    resp = table.get_item(Key={"order_id": order_id})
     item = resp.get("Item")
     if not item:
         return {"statusCode": 404, "body": json.dumps({"error": f"Order {order_id} not found"})}
