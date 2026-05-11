@@ -32,7 +32,10 @@ def invoke(prompt: str):
         prompt,
     ]
 
-    result = subprocess.run(cmd, capture_output=False)
+    # Run from the CustomerSupport project directory
+    import os
+    project_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "CustomerSupport")
+    result = subprocess.run(cmd, capture_output=False, cwd=project_dir)
     if result.returncode != 0:
         print(f"\nError: agentcore invoke failed with exit code {result.returncode}")
 
