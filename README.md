@@ -230,11 +230,17 @@ agentcore deploy
 ## Cleanup
 
 ```bash
-# Remove AgentCore resources
-cd agent-harness/CustomerSupportAgent
-agentcore remove all && agentcore deploy
+# Remove Harness agent
+cd agent-harness/CustomerSupport
+agentcore remove all
+agentcore deploy --yes
 
-# Remove backend stack
+# Remove Code-Based agent
+cd agent-code-based/CSAgent
+agentcore remove all
+agentcore deploy --yes
+
+# Remove backend stack (DynamoDB + Lambda)
 aws cloudformation delete-stack \
   --stack-name customer-support-backend \
   --region us-west-2
