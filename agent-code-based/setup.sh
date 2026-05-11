@@ -12,12 +12,14 @@ echo "============================================"
 echo " AgentCore Code-Based Agent Setup"
 echo "============================================"
 
-# Step 1: Create the project with a default Strands agent
+# Step 1: Create the project with a Strands code-based agent
 echo ""
 echo "==> Step 1: Creating Strands agent project..."
 agentcore create \
   --name CSAgent \
-  --defaults
+  --framework Strands \
+  --model-provider Bedrock \
+  --memory none
 
 cd CSAgent
 
