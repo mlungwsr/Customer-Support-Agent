@@ -13,18 +13,17 @@ echo "============================================"
 echo " AgentCore Harness Agent Setup"
 echo "============================================"
 
-# Step 1: Create the harness project
+# Step 1: Create the project and add a harness
 echo ""
-echo "==> Step 1: Creating harness project..."
-agentcore create \
-  --name CustomerSupportAgent \
-  --model-provider bedrock
-
-# Step 2: Move into the project
+echo "==> Step 1: Creating project and harness..."
+agentcore create --name CustomerSupportAgent --no-agent
 cd CustomerSupportAgent
+agentcore add harness \
+  --name CustomerSupportAgent \
+  --model-id us.amazon.nova-pro-v1:0
 
 # Step 3: Add a Gateway with the Lambda target
-echo ""3
+echo ""
 echo "==> Step 2: Adding Gateway..."
 agentcore add gateway \
   --name OrderLookupGateway \
