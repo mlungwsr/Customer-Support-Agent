@@ -9,12 +9,13 @@ import uuid
 
 REGION = "us-west-2"
 
-client = boto3.client("bedrock-agentcore", region_name=REGION)
+control_client = boto3.client("bedrock-agentcore-control", region_name=REGION)
+runtime_client = boto3.client("bedrock-agentcore", region_name=REGION)
 
 
 def get_harness_arn():
     """Find the SupportAgent harness ARN."""
-    resp = client.list_harnesses()
+    resp = control_client.list_harnesses()
     for h in resp.get("harnessSummaries", []):
         if "SupportAgent" in h.get("harnessName", ""):
             return h["harnessArn"]
@@ -29,7 +30,7 @@ def invoke(prompt: str):
     print(f"Prompt:  {prompt}")
     print("-" * 60)
 
-    response = client.invoke_harness(
+    response = runtime_client.invoke_harness(
         harnessArn=arn,
         runtimeSessionId=session_id,
         model={"bedrockModelConfig": {"modelId": "us.amazon.nova-pro-v1:0"}},
