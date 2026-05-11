@@ -13,12 +13,12 @@ client = boto3.client("bedrock-agentcore", region_name=REGION)
 
 
 def get_harness_arn():
-    """Find the CustomerSupportAgent harness ARN."""
+    """Find the SupportAgent harness ARN."""
     resp = client.list_harnesses()
     for h in resp.get("harnessSummaries", []):
-        if "CustomerSupportAgent" in h.get("harnessName", ""):
+        if "SupportAgent" in h.get("harnessName", ""):
             return h["harnessArn"]
-    raise RuntimeError("Harness not found. Run the setup script first.")
+    raise RuntimeError("Harness not found. Create it via the interactive wizard first.")
 
 
 def invoke(prompt: str):

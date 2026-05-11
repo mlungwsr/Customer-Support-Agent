@@ -133,7 +133,7 @@ Customer-Support-Agent/
 │   │   └── seed_orders.py     # Seed 5 sample orders
 │   └── tools.json             # Tool schema for AgentCore Gateway
 ├── agent-harness/
-│   ├── setup.sh               # Creates harness + gateway + deploys
+│   ├── README.md              # Instructions for interactive harness creation
 │   ├── invoke_harness.py      # Standalone invoke script (boto3)
 │   └── requirements.txt
 ├── agent-code-based/
