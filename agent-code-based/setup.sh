@@ -56,22 +56,18 @@ echo ""
 echo "==> Step 4: Deploying (first pass to create Gateway)..."
 agentcore deploy --yes
 
-# Step 4: Get Gateway URL and update the MCP client
+# Step 4: Get Gateway URL from deployed state
 echo ""
 echo "==> Step 5: Configuring agent to use Gateway..."
-GATEWAY_URL=$(agentcore status --json 2>/dev/null | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-for gw in data.get('gateways', []):
-    if 'OrderLookupGateway' in str(gw):
-        print(gw.get('url', ''))
-        break
+GATEWAY_URL=$(python3 -c "
+import json
+with open('agentcore/.cli/deployed-state.json') as f:
+    data = json.load(f)
+gws = data.get('targets',{}).get('default',{}).get('resources',{}).get('mcp',{}).get('gateways',{})
+for name, gw in gws.items():
+    print(gw.get('gatewayUrl',''))
+    break
 " 2>/dev/null || echo "")
-
-# If we couldn't parse it from JSON, extract from deploy output
-if [ -z "$GATEWAY_URL" ]; then
-  GATEWAY_URL=$(grep -r "GatewayOrderLookupGatewayUrlOutput" agentcore/.cli/ 2>/dev/null | grep -o 'https://[^"]*' | head -1 || echo "")
-fi
 
 if [ -n "$GATEWAY_URL" ]; then
   echo "   Gateway URL: $GATEWAY_URL"
