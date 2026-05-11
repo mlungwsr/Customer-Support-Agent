@@ -7,28 +7,28 @@ set -euo pipefail
 
 REGION="us-west-2"
 LAMBDA_ARN="arn:aws:lambda:us-west-2:463348350759:function:customer-order-lookup"
-TOOLS_SCHEMA="../backend/tools.json"
+TOOLS_SCHEMA="$(cd "$(dirname "$0")" && pwd)/../backend/tools.json"
 
 echo "============================================"
 echo " AgentCore Harness Agent Setup"
 echo "============================================"
 
-# Step 1: Create the project and add a harness
+# Step 1: Create the project with a default Strands agent
 echo ""
-echo "==> Step 1: Creating project and harness..."
-agentcore create --name CustomerSupportAgent --no-agent
-cd CustomerSupportAgent
-agentcore add harness \
-  --name CustomerSupportAgent \
-  --model-id us.amazon.nova-pro-v1:0
+echo "==> Step 1: Creating project..."
+agentcore create \
+  --name CSAgent \
+  --defaults
 
-# Step 3: Add a Gateway with the Lambda target
+cd CSAgent
+
+# Step 2: Add a Gateway with the Lambda target
 echo ""
 echo "==> Step 2: Adding Gateway..."
 agentcore add gateway \
   --name OrderLookupGateway \
   --authorizer-type NONE \
-  --runtimes CustomerSupportAgent
+  --runtimes CSAgent
 
 echo ""
 echo "==> Step 3: Adding Lambda target to Gateway..."
@@ -39,26 +39,17 @@ agentcore add gateway-target \
   --tool-schema-file "$TOOLS_SCHEMA" \
   --gateway OrderLookupGateway
 
-# Step 4: Add the Gateway as a tool to the harness
+# Step 3: Deploy
 echo ""
-echo "==> Step 4: Connecting Gateway to harness..."
-agentcore add tool --harness CustomerSupportAgent \
-  --type agentcore_gateway \
-  --name OrderLookupGateway \
-  --gateway OrderLookupGateway
-
-# Step 5: Deploy
-echo ""
-echo "==> Step 5: Deploying..."
+echo "==> Step 4: Deploying..."
 agentcore deploy
 
 echo ""
 echo "============================================"
-echo " Harness agent deployed!"
+echo " Agent deployed!"
 echo " Test with:"
-echo "   agentcore invoke --harness CustomerSupportAgent \\"
-echo "     --model-id us.amazon.nova-pro-v1:0 \\"
-echo "     --system-prompt \"You are a helpful customer support agent for an electronics store. Use the lookup_order tool to find order details.\" \\"
-echo "     --session-id \"\$(uuidgen)\" \\"
-echo "     \"Look up order ORD-1001\""
+echo "   agentcore invoke --prompt \"Look up order ORD-1001\""
+echo ""
+echo " Or use the boto3 harness invoke script:"
+echo "   python invoke_harness.py \"Look up order ORD-1001\""
 echo "============================================"
