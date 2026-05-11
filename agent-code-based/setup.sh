@@ -19,6 +19,7 @@ agentcore create \
   --name CSAgent \
   --framework Strands \
   --model-provider Bedrock \
+  --model-id us.amazon.nova-pro-v1:0 \
   --memory none
 
 cd CSAgent
