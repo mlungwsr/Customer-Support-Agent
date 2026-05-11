@@ -1,51 +1,40 @@
 #!/usr/bin/env python3
 """
-Standalone invoke script — test the harness agent from your terminal.
+Standalone invoke script — test the harness agent via AWS CLI subprocess.
 Usage: python invoke_harness.py "Look up order ORD-1001"
+
+Note: Requires the AgentCore CLI installed (npm install -g @aws/agentcore@preview)
+      and the harness created via the interactive wizard.
 """
-import boto3
+import subprocess
 import sys
 import uuid
 
-REGION = "us-west-2"
-
-control_client = boto3.client("bedrock-agentcore-control", region_name=REGION)
-runtime_client = boto3.client("bedrock-agentcore", region_name=REGION)
-
-
-def get_harness_arn():
-    """Find the SupportAgent harness ARN."""
-    resp = control_client.list_harnesses()
-    for h in resp.get("harnessSummaries", []):
-        if "SupportAgent" in h.get("harnessName", ""):
-            return h["harnessArn"]
-    raise RuntimeError("Harness not found. Create it via the interactive wizard first.")
+HARNESS_NAME = "SupportAgent"
+MODEL_ID = "us.amazon.nova-pro-v1:0"
+SYSTEM_PROMPT = "You are a helpful customer support agent for an electronics store. Use the lookup_order tool to find order details."
 
 
 def invoke(prompt: str):
-    arn = get_harness_arn()
     session_id = str(uuid.uuid4())
-    print(f"Harness: {arn}")
+    print(f"Harness: {HARNESS_NAME}")
     print(f"Session: {session_id}")
     print(f"Prompt:  {prompt}")
     print("-" * 60)
 
-    response = runtime_client.invoke_harness(
-        harnessArn=arn,
-        runtimeSessionId=session_id,
-        model={"bedrockModelConfig": {"modelId": "us.amazon.nova-pro-v1:0"}},
-        systemPrompt=[{"text": "You are a helpful customer support agent for an electronics store. Use the lookup_order tool to find order details."}],
-        messages=[{"role": "user", "content": [{"text": prompt}]}],
-    )
+    cmd = [
+        "agentcore", "invoke",
+        "--harness", HARNESS_NAME,
+        "--model-id", MODEL_ID,
+        "--system-prompt", SYSTEM_PROMPT,
+        "--session-id", session_id,
+        "--stream",
+        prompt,
+    ]
 
-    for event in response.get("stream", []):
-        if "contentBlockDelta" in event:
-            delta = event["contentBlockDelta"].get("delta", {})
-            if "text" in delta:
-                print(delta["text"], end="", flush=True)
-        elif "runtimeClientError" in event:
-            print(f"\nError: {event['runtimeClientError']['message']}")
-    print()
+    result = subprocess.run(cmd, capture_output=False)
+    if result.returncode != 0:
+        print(f"\nError: agentcore invoke failed with exit code {result.returncode}")
 
 
 if __name__ == "__main__":
