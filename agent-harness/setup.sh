@@ -24,7 +24,7 @@ agentcore create \
 cd CustomerSupportAgent
 
 # Step 3: Add a Gateway with the Lambda target
-echo ""
+echo ""3
 echo "==> Step 2: Adding Gateway..."
 agentcore add gateway \
   --name OrderLookupGateway \
@@ -59,6 +59,7 @@ echo " Harness agent deployed!"
 echo " Test with:"
 echo "   agentcore invoke --harness CustomerSupportAgent \\"
 echo "     --model-id us.amazon.nova-pro-v1:0 \\"
+echo "     --system-prompt \"You are a helpful customer support agent for an electronics store. Use the lookup_order tool to find order details.\" \\"
 echo "     --session-id \"\$(uuidgen)\" \\"
 echo "     \"Look up order ORD-1001\""
 echo "============================================"
