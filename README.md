@@ -88,15 +88,18 @@ aws lambda invoke --function-name customer-order-lookup \
 ```bash
 # Install AgentCore CLI (preview channel for harness support)
 npm install -g @aws/agentcore@preview
-
-# Create the harness via the interactive wizard
 cd agent-harness
+
+# Option A: One-liner (non-interactive)
+agentcore create --name SupportAgent --model-provider bedrock
+
+# Option B: Interactive wizard (better for demo visuals)
 agentcore create
 # Select: Project name → CustomerSupport, Project type → Harness,
 #         Harness name → SupportAgent, Model provider → Bedrock
 
 # Add Gateway with the order lookup Lambda
-cd CustomerSupport
+cd SupportAgent  # or cd CustomerSupport if using Option B
 agentcore add gateway --name OrderLookupGateway --authorizer-type NONE
 agentcore add gateway-target --name OrderLookupTarget \
   --type lambda-function-arn \
@@ -116,10 +119,11 @@ agentcore deploy
 
 Test it:
 ```bash
+SESSION="demo-session-2026-06-10-festival01"
 agentcore invoke --harness SupportAgent \
   --model-id us.amazon.nova-pro-v1:0 \
   --system-prompt "You are a helpful customer support agent for an electronics store. Use the lookup_order tool to find order details." \
-  --session-id "$(uuidgen)" \
+  --session-id "$SESSION" \
   "I need help with order ORD-1002"
 ```
 
@@ -184,13 +188,16 @@ Customer-Support-Agent/
 
 ### Act 2 — The Fast Lane: Managed Harness (12 min)
 ```bash
-# Create harness via interactive wizard (select Harness as project type)
+# Option A: One-liner (use for pre-recording speed)
+agentcore create --name SupportAgent --model-provider bedrock
+cd SupportAgent
+
+# Option B: Interactive wizard (use on camera for demo visuals)
 agentcore create
 # → Project name: CustomerSupport
 # → Project type: Harness
 # → Harness name: SupportAgent
 # → Model provider: Bedrock
-
 cd CustomerSupport
 
 # Add Gateway with Lambda tool

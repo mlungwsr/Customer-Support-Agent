@@ -1,31 +1,38 @@
-# Agent Harness (Managed — Interactive Demo)
+# Agent Harness (Managed — No Orchestration Code)
 
-The managed harness is created via the **interactive wizard** or **boto3 API**.
-There is no orchestration code — just configuration.
+The managed harness requires **no Python code** — just configuration.
+There are two ways to create it:
 
-## Create via Interactive Wizard
+## Option A: One-Liner (Non-Interactive)
 
 ```bash
-# Install preview CLI (required for harness)
 npm install -g @aws/agentcore@preview
 
-# Launch the interactive wizard
+agentcore create --name SupportAgent --model-provider bedrock
+cd SupportAgent
+```
+
+## Option B: Interactive Wizard (Better for Demo Visuals)
+
+```bash
 agentcore create
 ```
 
 When prompted:
-1. **Project name:** `CustomerSupportHarness`
+1. **Project name:** `CustomerSupport`
 2. **Project type:** Select **Harness**
-3. **Model provider:** Select **Bedrock**
-4. **Environment:** Default
-5. **Memory:** None (or short-term for demo)
-6. **Advanced → Tools:** Add the Gateway after creation
-
-Then add the Gateway and deploy:
+3. **Harness name:** `SupportAgent`
+4. **Model provider:** Select **Bedrock**
+5. **Environment:** Default
+6. **Memory:** None (or short-term for demo)
 
 ```bash
-cd CustomerSupportHarness
+cd CustomerSupport
+```
 
+## Add Gateway and Deploy
+
+```bash
 # Add Gateway with the order lookup Lambda
 agentcore add gateway --name OrderLookupGateway --authorizer-type NONE
 agentcore add gateway-target --name OrderLookupTarget \
@@ -47,18 +54,17 @@ agentcore deploy
 ## Invoke the Harness
 
 ```bash
-# Via CLI (pass model + system prompt at invoke time)
-agentcore invoke --harness CustomerSupportHarness \
+SESSION="demo-session-2026-06-10-festival01"
+agentcore invoke --harness SupportAgent \
   --model-id us.amazon.nova-pro-v1:0 \
   --system-prompt "You are a helpful customer support agent for an electronics store. Use the lookup_order tool to find order details." \
-  --session-id "$(uuidgen)" \
+  --session-id "$SESSION" \
   "Look up order ORD-1001"
 ```
 
-Or use the standalone boto3 script:
+Or use the standalone invoke script:
 
 ```bash
-pip install boto3
 python invoke_harness.py "What's the status of order ORD-1003?"
 ```
 
