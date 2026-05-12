@@ -32,9 +32,20 @@ def invoke(prompt: str):
         prompt,
     ]
 
-    # Run from the CustomerSupport project directory
+    # Run from the agentcore project directory (auto-detect)
     import os
-    project_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "CustomerSupport")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_dir = None
+    for name in os.listdir(script_dir):
+        candidate = os.path.join(script_dir, name, "agentcore")
+        if os.path.isdir(candidate):
+            project_dir = os.path.join(script_dir, name)
+            break
+    if not project_dir:
+        print("ERROR: No agentcore project found in this directory.")
+        print("Create one first (see README.md).")
+        sys.exit(1)
+
     result = subprocess.run(cmd, capture_output=False, cwd=project_dir)
     if result.returncode != 0:
         print(f"\nError: agentcore invoke failed with exit code {result.returncode}")
