@@ -87,7 +87,16 @@ aws bedrock-agentcore-control create-gateway-target \
         }
       }
     }
-  }" 2>&1 || echo "   (Target may already exist)"
+  }" \
+  --credential-provider-configurations "[{
+    \"credentialProviderType\": \"GATEWAY_IAM_ROLE\",
+    \"credentialProvider\": {
+      \"iamCredentialProvider\": {
+        \"service\": \"lambda\",
+        \"region\": \"$REGION\"
+      }
+    }
+  }]" 2>&1 || echo "   (Target may already exist)"
 
 # Write outputs for other scripts to consume
 cat > "$SCRIPT_DIR/../gateway-output.json" << EOF
