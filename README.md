@@ -252,7 +252,7 @@ agentcore deploy
 
 ```bash
 # Remove Harness agent
-cd agent-harness/CustomerSupport
+cd agent-harness/CustomerSupport  # or SupportAgent
 agentcore remove all
 agentcore deploy --yes
 
@@ -261,10 +261,9 @@ cd agent-code-based/CSAgent
 agentcore remove all
 agentcore deploy --yes
 
-# Remove backend stack (DynamoDB + Lambda)
-aws cloudformation delete-stack \
-  --stack-name customer-support-backend \
-  --region us-west-2
+# Remove backend (DynamoDB + Lambda + Gateway + IAM role)
+cd backend
+bash scripts/cleanup.sh
 ```
 
 ## Resources
