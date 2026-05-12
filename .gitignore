@@ -9,4 +9,6 @@ agentcore/.cli/
 .DS_Store
 samconfig.toml
 agent-harness/CustomerSupport/
+agent-harness/SupportAgent/
 agent-code-based/CSAgent/
+backend/gateway-output.json

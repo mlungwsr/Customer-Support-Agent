@@ -1,18 +1,29 @@
 #!/usr/bin/env bash
 # ============================================================
 # Setup script for the AgentCore Code-based agent (Strands)
+# Uses the shared Gateway created by the backend deploy.
 # ============================================================
 set -euo pipefail
 
 REGION="us-west-2"
-LAMBDA_ARN="arn:aws:lambda:us-west-2:463348350759:function:customer-order-lookup"
-TOOLS_SCHEMA="$(cd "$(dirname "$0")" && pwd)/../backend/tools.json"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+GATEWAY_OUTPUT="$SCRIPT_DIR/../backend/gateway-output.json"
+
+# Read Gateway URL from backend output
+if [ ! -f "$GATEWAY_OUTPUT" ]; then
+  echo "ERROR: backend/gateway-output.json not found."
+  echo "Run 'cd backend && bash scripts/deploy.sh' first."
+  exit 1
+fi
+
+GATEWAY_URL=$(python3 -c "import json; print(json.load(open('$GATEWAY_OUTPUT'))['gatewayUrl'])")
+echo "Using shared Gateway: $GATEWAY_URL"
 
 echo "============================================"
 echo " AgentCore Code-Based Agent Setup"
 echo "============================================"
 
-# Step 1: Create the project with a Strands code-based agent
+# Step 1: Create the project
 echo ""
 echo "==> Step 1: Creating Strands agent project..."
 agentcore create \
@@ -23,7 +34,7 @@ agentcore create \
 
 cd CSAgent
 
-# Set deployment target (not auto-populated in non-interactive mode)
+# Set deployment target
 cat > agentcore/aws-targets.json << 'EOF'
 [
   {
@@ -34,45 +45,11 @@ cat > agentcore/aws-targets.json << 'EOF'
 ]
 EOF
 
-# Step 2: Add a Gateway
+# Step 2: Configure agent code to use shared Gateway
 echo ""
-echo "==> Step 2: Adding Gateway..."
-agentcore add gateway \
-  --name OrderLookupGateway \
-  --authorizer-type NONE \
-  --runtimes CSAgent
+echo "==> Step 2: Configuring agent code..."
 
-echo ""
-echo "==> Step 3: Adding Lambda target to Gateway..."
-agentcore add gateway-target \
-  --name OrderLookupTarget \
-  --type lambda-function-arn \
-  --lambda-arn "$LAMBDA_ARN" \
-  --tool-schema-file "$TOOLS_SCHEMA" \
-  --gateway OrderLookupGateway
-
-# Step 3: First deploy to create the Gateway and get its URL
-echo ""
-echo "==> Step 4: Deploying (first pass to create Gateway)..."
-agentcore deploy --yes
-
-# Step 4: Get Gateway URL from deployed state
-echo ""
-echo "==> Step 5: Configuring agent to use Gateway..."
-GATEWAY_URL=$(python3 -c "
-import json
-with open('agentcore/.cli/deployed-state.json') as f:
-    data = json.load(f)
-gws = data.get('targets',{}).get('default',{}).get('resources',{}).get('mcp',{}).get('gateways',{})
-for name, gw in gws.items():
-    print(gw.get('gatewayUrl',''))
-    break
-" 2>/dev/null || echo "")
-
-if [ -n "$GATEWAY_URL" ]; then
-  echo "   Gateway URL: $GATEWAY_URL"
-  # Update the MCP client to point at our Gateway
-  cat > app/CSAgent/mcp_client/client.py << PYEOF
+cat > app/CSAgent/mcp_client/client.py << PYEOF
 import os
 import logging
 from mcp.client.streamable_http import streamablehttp_client
@@ -83,12 +60,11 @@ logger = logging.getLogger(__name__)
 GATEWAY_MCP_ENDPOINT = "$GATEWAY_URL"
 
 def get_streamable_http_mcp_client() -> MCPClient:
-    """Returns an MCP Client connected to the AgentCore Gateway"""
+    """Returns an MCP Client connected to the shared AgentCore Gateway"""
     return MCPClient(lambda: streamablehttp_client(GATEWAY_MCP_ENDPOINT))
 PYEOF
 
-  # Update system prompt and remove example tool
-  cat > app/CSAgent/main.py << 'PYEOF'
+cat > app/CSAgent/main.py << 'PYEOF'
 from strands import Agent
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
 from model.load import load_model
@@ -128,8 +104,7 @@ if __name__ == "__main__":
     app.run()
 PYEOF
 
-  # Update model to Nova Pro
-  cat > app/CSAgent/model/load.py << 'PYEOF'
+cat > app/CSAgent/model/load.py << 'PYEOF'
 from strands.models.bedrock import BedrockModel
 
 def load_model() -> BedrockModel:
@@ -137,13 +112,10 @@ def load_model() -> BedrockModel:
     return BedrockModel(model_id="us.amazon.nova-pro-v1:0")
 PYEOF
 
-  # Redeploy with updated code
-  echo ""
-  echo "==> Step 6: Redeploying with Gateway connection..."
-  agentcore deploy --yes
-else
-  echo "   WARNING: Could not determine Gateway URL. Update mcp_client/client.py manually."
-fi
+# Step 3: Deploy
+echo ""
+echo "==> Step 3: Deploying..."
+agentcore deploy --yes
 
 echo ""
 echo "============================================"
