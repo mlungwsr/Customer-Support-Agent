@@ -83,7 +83,7 @@ npm install -g @aws/agentcore@preview
 cd agent-harness
 
 # Option A: One-liner (non-interactive)
-agentcore create --name SupportAgent --model-provider bedrock --model-id us.amazon.nova-pro-v1:0
+agentcore create --name SupportAgent --model-provider bedrock --model-id us.amazon.nova-pro-v1:0 --no-harness-memory
 cd SupportAgent
 
 # Option B: Interactive wizard (better for demo visuals)
@@ -181,7 +181,7 @@ Customer-Support-Agent/
 ### Act 2 — The Fast Lane: Managed Harness (12 min)
 ```bash
 # Option A: One-liner (use for pre-recording speed)
-agentcore create --name SupportAgent --model-provider bedrock --model-id us.amazon.nova-pro-v1:0
+agentcore create --name SupportAgent --model-provider bedrock --model-id us.amazon.nova-pro-v1:0 --no-harness-memory
 cd SupportAgent
 
 # Option B: Interactive wizard (use on camera for demo visuals)

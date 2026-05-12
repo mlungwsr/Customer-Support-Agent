@@ -15,7 +15,7 @@ Connects to the shared Gateway created by the backend deploy.
 
 ```bash
 cd agent-harness
-agentcore create --name SupportAgent --model-provider bedrock --model-id us.amazon.nova-pro-v1:0
+agentcore create --name SupportAgent --model-provider bedrock --model-id us.amazon.nova-pro-v1:0 --no-harness-memory
 cd SupportAgent
 ```
 
