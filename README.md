@@ -12,7 +12,7 @@ A **Customer Support Agent** that can look up real orders from a DynamoDB databa
 
 | Approach | Path | What It Shows |
 |---|---|---|
-| **Managed Harness** (preview) | `agent-harness/` | Config-only agent — no orchestration code. 3 API calls to a running agent. |
+| **Managed Harness** | `agent-harness/` | Config-only agent — no orchestration code. 3 API calls to a running agent. |
 | **Code-Based** (Strands Agents) | `agent-code-based/` | Full-control agent with Python. Same platform, more flexibility. |
 
 Both agents use **Amazon Nova Pro** (`us.amazon.nova-pro-v1:0`) and connect to a Lambda-backed order lookup tool via **AgentCore Gateway**.
@@ -78,8 +78,8 @@ aws lambda invoke --function-name customer-order-lookup \
 ### 2a. Deploy the Managed Harness Agent (Fast Lane)
 
 ```bash
-# Install AgentCore CLI (preview channel for harness support)
-npm install -g @aws/agentcore@preview
+# Install AgentCore CLI
+npm install -g @aws/agentcore@latest
 cd agent-harness
 
 # Option A: One-liner (non-interactive)
